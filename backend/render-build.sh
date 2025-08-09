@@ -4,7 +4,7 @@
 echo "🚀 Iniciando build do backend..."
 
 # Instalar dependências
-npm ci
+npm install
 
 # Gerar cliente Prisma
 npx prisma generate
