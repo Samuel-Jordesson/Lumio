@@ -188,7 +188,7 @@ const Feed = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </article>
         ))}
       </div>
 
