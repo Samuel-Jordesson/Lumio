@@ -395,6 +395,11 @@
   }
 }
 
+/* Shadow utilities for fixed elements */
+.shadow-up {
+  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
 /* Pulse animation for notifications */
 @keyframes notification-pulse {
   0% { transform: scale(1); }

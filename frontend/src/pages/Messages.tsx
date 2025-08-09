@@ -286,14 +286,14 @@ const Messages = () => {
         <div className={`${
           isMobile 
             ? selectedConversation 
-              ? 'w-full bg-white' 
+              ? 'w-full h-screen bg-white flex flex-col' 
               : 'hidden' 
             : 'flex-1'
-        } flex flex-col`}>
+        } ${!isMobile ? 'flex flex-col' : ''}`}>
           {selectedConversation ? (
             <>
               {/* Header da conversa */}
-              <div className="p-4 border-b border-gray-200 flex items-center justify-between animate-slide-in-down">
+              <div className={`${isMobile ? 'fixed top-0 left-0 right-0 z-50 bg-white shadow-md' : ''} p-4 border-b border-gray-200 flex items-center justify-between animate-slide-in-down`}>
                 {isMobile && (
                   <button
                     onClick={() => setSelectedConversation(null)}
@@ -306,13 +306,13 @@ const Messages = () => {
                   <img
                     src={getImageUrl(conversations?.find(c => c.id === selectedConversation)?.user.avatar) || '/default-avatar.png'}
                     alt="Avatar"
-                    className="w-8 h-8 rounded-full object-cover transition-transform duration-300 hover:scale-110"
+                    className={`${isMobile ? 'w-10 h-10' : 'w-8 h-8'} rounded-full object-cover transition-transform duration-300 hover:scale-110`}
                   />
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className={`${isMobile ? 'text-heading-xs' : 'font-medium'} text-gray-900`}>
                       {conversations?.find(c => c.id === selectedConversation)?.user.name}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-caption">
                       @{conversations?.find(c => c.id === selectedConversation)?.user.username}
                     </p>
                   </div>
@@ -323,7 +323,7 @@ const Messages = () => {
               </div>
 
               {/* Mensagens */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 messages-area">
+              <div className={`flex-1 overflow-y-auto space-y-4 messages-area ${isMobile ? 'pt-20 pb-24 px-4 h-screen' : 'p-4'}`}>
                 {messages.map((message) => {
                   const isNewMessage = newlyAddedMessages.has(message.id);
                   const animationClass = isNewMessage 
@@ -372,7 +372,7 @@ const Messages = () => {
               </div>
 
               {/* Input de mensagem */}
-              <div className="p-4 border-t border-gray-200 animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
+              <div className={`${isMobile ? 'fixed bottom-0 left-0 right-0 z-50 bg-white shadow-up' : ''} p-4 border-t border-gray-200 animate-slide-in-up`} style={{ animationDelay: '0.3s' }}>
                 <div className="flex items-center space-x-2">
                   <input
                     type="text"
