@@ -30,19 +30,12 @@ const io = new Server(server, {
 // Configure trust proxy for Railway
 app.set('trust proxy', 1);
 
-// Middleware - Configurar Helmet para permitir recursos necessários
+// Middleware - Configurar Helmet com CSP mais permissivo para desenvolvimento
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
-      mediaSrc: ["'self'", "data:", "blob:"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      connectSrc: ["'self'", "https:", "wss:", "ws:"]
-    }
-  }
+  contentSecurityPolicy: false, // Desabilitar CSP temporariamente para debug
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+  crossOriginEmbedderPolicy: false
 }));
 app.use(cors({
   origin: [

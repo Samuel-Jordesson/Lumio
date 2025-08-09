@@ -9,26 +9,29 @@ import Feed from './pages/Feed'
 import Profile from './pages/Profile'
 import Messages from './pages/Messages'
 import Explore from './pages/Explore'
+import ErrorBoundary from './components/ErrorBoundary'
 
 function App() {
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <Routes>
-          {/* Rotas públicas */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          {/* Rotas privadas */}
-          <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-            <Route index element={<Feed />} />
-            <Route path="profile/:username" element={<Profile />} />
-            <Route path="messages" element={<Messages />} />
-            <Route path="explore" element={<Explore />} />
-          </Route>
-        </Routes>
-      </SocketProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <SocketProvider>
+          <Routes>
+            {/* Rotas públicas */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            
+            {/* Rotas privadas */}
+            <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
+              <Route index element={<Feed />} />
+              <Route path="profile/:username" element={<Profile />} />
+              <Route path="messages" element={<Messages />} />
+              <Route path="explore" element={<Explore />} />
+            </Route>
+          </Routes>
+        </SocketProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

@@ -56,28 +56,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuth = async () => {
     try {
+      console.log('🔍 Verificando autenticação...')
       const response = await api.get('/auth/me')
+      console.log('✅ Usuário autenticado:', response.data)
       setUser(response.data)
       setIsAuthenticated(true)
     } catch (error) {
+      console.log('❌ Erro na verificação de auth:', error)
       localStorage.removeItem('token')
       delete api.defaults.headers.common['Authorization']
+      setUser(null)
+      setIsAuthenticated(false)
     }
   }
 
   const login = async (emailOrToken: string, password?: string, userData?: User) => {
     try {
+      console.log('🚀 Iniciando login...', { hasPassword: !!password, hasUserData: !!userData })
       let token: string
       let user: User
 
       if (password) {
         // Login tradicional com email e senha
+        console.log('📧 Login tradicional com email/senha')
         const response = await api.post('/auth/login', { email: emailOrToken, password })
         token = response.data.token
         user = response.data.user
         toast.success('Login realizado com sucesso!')
       } else if (userData) {
         // Login com Google (token já está no emailOrToken, userData já vem pronta)
+        console.log('🔑 Login com Google')
         token = emailOrToken
         user = userData
         // Toast já é exibido no GoogleLoginButton
@@ -85,13 +93,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Parâmetros inválidos para login')
       }
       
+      console.log('💾 Salvando token e dados do usuário...')
       localStorage.setItem('token', token)
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
       
       setUser(user)
       setIsAuthenticated(true)
+      
+      console.log('🏠 Redirecionando para home...')
       navigate('/')
     } catch (error: any) {
+      console.log('❌ Erro no login:', error)
       if (password) {
         // Só mostra toast de erro para login tradicional
         toast.error(error.response?.data?.message || 'Erro ao fazer login')
