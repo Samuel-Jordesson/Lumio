@@ -9,7 +9,7 @@ npm ci
 # Gerar cliente Prisma
 npx prisma generate
 
-# Push do schema para o banco (cria as tabelas)
-npx prisma db push
+# Deploy das migrations para PostgreSQL
+npx prisma migrate deploy
 
 echo "✅ Build do backend concluído!"

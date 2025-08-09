@@ -34,7 +34,7 @@ Este guia explica como fazer deploy da aplicação Lumio no Render.
    - Environment: `Node`
    - Region: `Oregon (US West)`
    - Branch: `main`
-   - Build Command: `npm ci && npx prisma generate && npx prisma db push`
+   - Build Command: `npm ci && npx prisma generate && npx prisma migrate deploy`
    - Start Command: `npm start`
 
 5. **Adicione as variáveis de ambiente:**
