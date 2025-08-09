@@ -2,6 +2,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Bell, Search, Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { getImageUrl } from '../utils/imageUtils'
 
 const Header = () => {
   const { user, logout } = useAuth()
@@ -56,7 +57,7 @@ const Header = () => {
           
           <div className="flex items-center space-x-3">
             <img
-              src={user?.avatar || '/default-avatar.png'}
+              src={getImageUrl(user?.avatar || '/default-avatar.png')}
               alt={user?.name}
               className="w-8 h-8 rounded-full object-cover hover:scale-110 transition-transform duration-300"
             />

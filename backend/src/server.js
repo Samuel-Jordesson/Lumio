@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -57,7 +58,8 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Static files - Removed uploads route (using Base64 for Render compatibility)
+// Static files - Temporary compatibility for old uploads (will be removed when all images are Base64)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

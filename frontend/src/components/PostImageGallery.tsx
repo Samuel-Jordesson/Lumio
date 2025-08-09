@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
+import { getImageUrls } from '../utils/imageUtils'
 
 interface PostImageGalleryProps {
   images: string[]
@@ -11,10 +12,13 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ images }) => {
   
   if (!images || images.length === 0) return null
 
+  // Processar URLs das imagens para compatibilidade com Base64 e uploads antigos
+  const processedImages = getImageUrls(images)
+  
   // Definir quantas imagens mostrar
   const maxVisible = 3
-  const visibleImages = showAll ? images : images.slice(0, maxVisible)
-  const remainingCount = images.length - maxVisible
+  const visibleImages = showAll ? processedImages : processedImages.slice(0, maxVisible)
+  const remainingCount = processedImages.length - maxVisible
 
   const getGridClass = (count: number) => {
     // Sempre usar grid de 2 colunas para manter tamanho consistente

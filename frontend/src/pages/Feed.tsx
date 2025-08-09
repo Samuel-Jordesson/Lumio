@@ -7,6 +7,7 @@ import PostImageGallery from '../components/PostImageGallery'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import useIsMobile from '../hooks/useIsMobile'
+import { getImageUrl } from '../utils/imageUtils'
 
 interface Post {
   id: string
@@ -95,7 +96,7 @@ const Feed = () => {
           >
             <div className="flex items-center space-x-3">
               <img
-                src={user?.avatar || '/default-avatar.png'}
+                src={getImageUrl(user?.avatar || '/default-avatar.png')}
                 alt={user?.name || 'Avatar'}
                 className="w-10 h-10 rounded-full object-cover transition-transform duration-300 hover:scale-110"
               />
@@ -117,7 +118,7 @@ const Feed = () => {
             <div className="flex items-center justify-between mb-4">
               <Link to={`/profile/${post.author.username}`} className="flex items-center space-x-3 hover:opacity-90 transition-opacity duration-200">
                 <img
-                  src={post.author.avatar || '/default-avatar.png'}
+                  src={getImageUrl(post.author.avatar || '/default-avatar.png')}
                   alt={post.author.name}
                   className="w-10 h-10 rounded-full object-cover transition-transform duration-300 hover:scale-110"
                 />
