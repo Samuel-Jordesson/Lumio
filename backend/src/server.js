@@ -19,7 +19,8 @@ const io = new Server(server, {
       /^https:\/\/.*\.vercel\.app$/,
       /^https:\/\/.*\.onrender\.com$/,
       "https://frontend-lumio-az9k-en13h6lps-samueljordessons-projects.vercel.app",
-      "https://backend-lumio-production.up.railway.app"
+      "https://backend-lumio-production.up.railway.app",
+      "https://lumio-frontend.onrender.com"
     ],
     methods: ["GET", "POST"],
     credentials: true
@@ -29,8 +30,20 @@ const io = new Server(server, {
 // Configure trust proxy for Railway
 app.set('trust proxy', 1);
 
-// Middleware
-app.use(helmet());
+// Middleware - Configurar Helmet para permitir recursos necessários
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      mediaSrc: ["'self'", "data:", "blob:"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      connectSrc: ["'self'", "https:", "wss:", "ws:"]
+    }
+  }
+}));
 app.use(cors({
   origin: [
     "http://localhost:3000",
@@ -38,11 +51,12 @@ app.use(cors({
     /^https:\/\/.*\.vercel\.app$/,
     /^https:\/\/.*\.onrender\.com$/,
     "https://frontend-lumio-az9k-en13h6lps-samueljordessons-projects.vercel.app",
-    "https://backend-lumio-production.up.railway.app"
+    "https://backend-lumio-production.up.railway.app",
+    "https://lumio-frontend.onrender.com"
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization", "Accept", "Accept-Language", "Content-Language"]
 }));
 app.use(morgan('combined'));
 app.use(express.json());

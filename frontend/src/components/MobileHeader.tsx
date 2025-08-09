@@ -2,6 +2,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Bell, Search, Menu, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { getImageUrl } from '../utils/imageUtils'
 
 interface MobileHeaderProps {
   showSearch?: boolean
@@ -80,7 +81,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
               className="flex items-center space-x-2"
             >
               <img
-                src={user?.avatar || '/default-avatar.png'}
+                src={getImageUrl(user?.avatar || '/default-avatar.png')}
                 alt={user?.name}
                 className="w-8 h-8 rounded-full object-cover"
               />
