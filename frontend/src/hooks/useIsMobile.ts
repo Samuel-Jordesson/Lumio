@@ -1,32 +1,44 @@
 import { useState, useEffect } from 'react'
 
 export const useIsMobile = (breakpoint: number = 768) => {
-  // Inicializar com detecção segura para SSR
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === 'undefined') return false
-    return window.innerWidth < breakpoint
-  })
+  // Inicializar sempre como false para evitar hidration mismatch
+  const [isMobile, setIsMobile] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
+    // Marcar que estamos no cliente
+    setIsClient(true)
+    
     const checkIsMobile = () => {
-      if (typeof window === 'undefined') return
-      setIsMobile(window.innerWidth < breakpoint)
+      try {
+        if (typeof window === 'undefined') return
+        const width = window.innerWidth || document.documentElement.clientWidth
+        setIsMobile(width < breakpoint)
+      } catch (error) {
+        console.error('Erro ao detectar mobile:', error)
+        setIsMobile(false)
+      }
     }
 
-    // Check on mount
+    // Check inicial
     checkIsMobile()
 
-    // Listen for window resize
-    window.addEventListener('resize', checkIsMobile)
-    window.addEventListener('orientationchange', checkIsMobile)
+    // Listeners
+    const handleResize = () => {
+      setTimeout(checkIsMobile, 100) // Debounce
+    }
+
+    window.addEventListener('resize', handleResize)
+    window.addEventListener('orientationchange', handleResize)
 
     return () => {
-      window.removeEventListener('resize', checkIsMobile)
-      window.removeEventListener('orientationchange', checkIsMobile)
+      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('orientationchange', handleResize)
     }
   }, [breakpoint])
 
-  return isMobile
+  // Retornar false até que o cliente seja detectado
+  return isClient ? isMobile : false
 }
 
 export default useIsMobile
