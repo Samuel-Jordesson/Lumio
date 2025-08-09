@@ -57,8 +57,7 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Static files
-app.use('/uploads', express.static('uploads'));
+// Static files - Removed uploads route (using Base64 for Render compatibility)
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

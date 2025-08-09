@@ -180,8 +180,10 @@ router.put('/profile', auth, upload.single('avatar'), [
     
     const updateData = { name, bio };
     if (req.file) {
-      updateData.avatar = `/uploads/${req.file.filename}`;
-      console.log('Avatar path set to:', updateData.avatar);
+      // Convert avatar to Base64 for Render compatibility
+      const base64 = req.file.buffer.toString('base64');
+      updateData.avatar = `data:${req.file.mimetype};base64,${base64}`;
+      console.log('Avatar converted to Base64');
     } else {
       console.log('No file received in req.file');
     }

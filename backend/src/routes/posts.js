@@ -91,9 +91,13 @@ router.post('/', auth, upload.array('images', 10), [
     const { content } = req.body;
     let images = null;
 
-    // Handle image uploads
+    // Handle image uploads - Convert to Base64 for Render compatibility
     if (req.files && req.files.length > 0) {
-      images = JSON.stringify(req.files.map(file => `/uploads/${file.filename}`));
+      const imageDataUrls = req.files.map(file => {
+        const base64 = file.buffer.toString('base64');
+        return `data:${file.mimetype};base64,${base64}`;
+      });
+      images = JSON.stringify(imageDataUrls);
     }
 
     const post = await prisma.post.create({
@@ -214,9 +218,13 @@ router.put('/:id', auth, upload.array('images', 10), [
 
     let images = existingPost.images;
 
-    // Handle new image uploads
+    // Handle new image uploads - Convert to Base64 for Render compatibility
     if (req.files && req.files.length > 0) {
-      images = JSON.stringify(req.files.map(file => `/uploads/${file.filename}`));
+      const imageDataUrls = req.files.map(file => {
+        const base64 = file.buffer.toString('base64');
+        return `data:${file.mimetype};base64,${base64}`;
+      });
+      images = JSON.stringify(imageDataUrls);
     }
 
     const updatedPost = await prisma.post.update({
