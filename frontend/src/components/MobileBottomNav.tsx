@@ -32,8 +32,12 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onNewPost }) => {
               }`
             }
           >
-            <item.icon className={`w-6 h-6 transition-transform duration-200 ${isActive ? 'animate-bounce-gentle' : ''}`} />
-            <span className="text-xs mt-1 font-medium">{item.label}</span>
+            {({ isActive }) => (
+              <>
+                <item.icon className={`w-6 h-6 transition-transform duration-200 ${isActive ? 'animate-bounce-gentle' : ''}`} />
+                <span className="text-xs mt-1 font-medium">{item.label}</span>
+              </>
+            )}
           </NavLink>
         ))}
         
