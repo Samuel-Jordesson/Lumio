@@ -64,19 +64,33 @@ const Feed = () => {
   if (isLoading) {
     return (
       <div className={`${isMobile ? '' : 'max-w-2xl'} mx-auto animate-fade-in`}>
-        <div className="space-y-4 stagger-fade-in">
+        <div className="space-y-3 stagger-fade-in">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className={`${isMobile ? 'bg-white rounded-lg border border-gray-200 p-4' : 'card'} animate-pulse`}>
+            <div key={i} className={`${isMobile ? 'bg-white rounded-xl border border-gray-100 p-5 shadow-sm' : 'card-elevated'} animate-pulse`} style={{ animationDelay: `${i * 0.1}s` }}>
+              {/* Header skeleton */}
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+                <div className="w-10 h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full animate-pulse"></div>
                 <div className="flex-1">
-                  <div className="h-4 bg-gray-300 rounded w-24 mb-2"></div>
-                  <div className="h-3 bg-gray-300 rounded w-16"></div>
+                  <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-28 mb-2 animate-pulse"></div>
+                  <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-36 animate-pulse"></div>
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-300 rounded"></div>
-                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+              
+              {/* Content skeleton */}
+              <div className="space-y-3 mb-4">
+                <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg animate-pulse"></div>
+                <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-4/5 animate-pulse"></div>
+                <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-3/5 animate-pulse"></div>
+              </div>
+              
+              {/* Actions skeleton */}
+              <div className="flex items-center space-x-8 pt-4 border-t border-gray-100">
+                {[...Array(3)].map((_, j) => (
+                  <div key={j} className="flex items-center space-x-2">
+                    <div className="w-9 h-9 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full animate-pulse"></div>
+                    <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-8 animate-pulse"></div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
@@ -107,11 +121,11 @@ const Feed = () => {
       )}
 
       {/* Feed de posts */}
-      <div className={`${isMobile ? 'space-y-4' : 'space-y-6'} stagger-fade-in`}>
+      <div className={`${isMobile ? 'space-y-3' : 'space-y-6'} stagger-fade-in`}>
         {posts?.map((post, index) => (
-          <div 
+          <article 
             key={post.id} 
-            className={`${isMobile ? 'bg-white rounded-lg border border-gray-200 p-4' : 'card'} hover-lift`}
+            className={`${isMobile ? 'bg-white rounded-xl border border-gray-100 p-5 shadow-sm' : 'card-elevated'} hover-lift transition-all duration-300`}
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             {/* Header do post */}
@@ -123,8 +137,8 @@ const Feed = () => {
                   className="w-10 h-10 rounded-full object-cover transition-transform duration-300 hover:scale-110"
                 />
                 <div>
-                  <p className="font-medium text-gray-900">{post.author.name}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-heading-xs text-gray-900">{post.author.name}</p>
+                  <p className="text-caption">
                     @{post.author.username} • {formatDate(post.createdAt)}
                   </p>
                 </div>
@@ -136,31 +150,41 @@ const Feed = () => {
 
             {/* Conteúdo do post */}
             <div className="mb-4">
-              <p className="text-gray-900 whitespace-pre-wrap">{post.content}</p>
+              <p className="text-body-md text-gray-900 whitespace-pre-wrap leading-relaxed">{post.content}</p>
               <PostImageGallery images={post.images || []} />
             </div>
 
             {/* Ações do post */}
-            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-              <div className="flex items-center space-x-6">
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div className="flex items-center space-x-8">
                 <button
                   onClick={() => handleLike(post.id)}
-                  className={`flex items-center space-x-2 transition-all duration-300 hover:scale-110 ${
-                    post.isLiked ? 'text-red-500 animate-heartbeat' : 'text-gray-500 hover:text-red-500'
+                  className={`group flex items-center space-x-2 transition-all duration-300 hover:scale-105 active:scale-95 ${
+                    post.isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
                   }`}
                 >
-                  <Heart className={`w-5 h-5 transition-transform duration-200 ${post.isLiked ? 'fill-current scale-110' : ''}`} />
-                  <span className="text-sm">{post.likesCount}</span>
+                  <div className={`p-2 rounded-full transition-all duration-200 ${
+                    post.isLiked ? 'bg-red-50' : 'group-hover:bg-red-50'
+                  }`}>
+                    <Heart className={`w-5 h-5 transition-all duration-200 ${
+                      post.isLiked ? 'fill-current animate-heartbeat' : 'group-hover:scale-110'
+                    }`} />
+                  </div>
+                  <span className="text-body-sm font-medium">{post.likesCount}</span>
                 </button>
                 
-                <button className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-all duration-300 hover:scale-110">
-                  <MessageCircle className="w-5 h-5" />
-                  <span className="text-sm">{post.commentsCount}</span>
+                <button className="group flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-all duration-300 hover:scale-105 active:scale-95">
+                  <div className="p-2 rounded-full group-hover:bg-blue-50 transition-all duration-200">
+                    <MessageCircle className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
+                  </div>
+                  <span className="text-body-sm font-medium">{post.commentsCount}</span>
                 </button>
                 
-                <button className="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-all duration-300 hover:scale-110">
-                  <Share className="w-5 h-5" />
-                  <span className="text-sm">Compartilhar</span>
+                <button className="group flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-all duration-300 hover:scale-105 active:scale-95">
+                  <div className="p-2 rounded-full group-hover:bg-green-50 transition-all duration-200">
+                    <Share className="w-5 h-5 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-12" />
+                  </div>
+                  <span className="text-body-sm font-medium">Compartilhar</span>
                 </button>
               </div>
             </div>
