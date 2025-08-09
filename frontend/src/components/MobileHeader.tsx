@@ -28,7 +28,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
   }
 
   return (
-    <header className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 py-3 z-40">
+    <header className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 py-3 z-40 mobile-header">
       <div className="flex items-center justify-between">
         {/* Logo ou título */}
         <div className="flex items-center space-x-3">

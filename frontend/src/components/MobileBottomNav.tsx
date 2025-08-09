@@ -17,7 +17,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onNewPost }) => {
   ]
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 animate-slide-in-up">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 animate-slide-in-up mobile-bottom-nav">
       <div className="flex items-center justify-around py-2 stagger-fade-in">
         {navItems.map((item, index) => (
           <NavLink

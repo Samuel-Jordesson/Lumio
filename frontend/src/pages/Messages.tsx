@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { api } from '../services/api'
 import { Send, Search, MoreVertical, ArrowLeft } from 'lucide-react'
 import useIsMobile from '../hooks/useIsMobile'
+import { getImageUrl } from '../utils/imageUtils'
 
 interface Conversation {
   id: string
@@ -174,8 +175,22 @@ const Messages = () => {
     return date.toLocaleDateString('pt-BR')
   }
 
+  // Adicionar classe CSS para esconder barra de navegação no mobile quando em conversa
+  useEffect(() => {
+    if (isMobile && selectedConversation) {
+      document.body.classList.add('hide-mobile-nav')
+    } else {
+      document.body.classList.remove('hide-mobile-nav')
+    }
+    
+    // Cleanup ao desmontar componente
+    return () => {
+      document.body.classList.remove('hide-mobile-nav')
+    }
+  }, [isMobile, selectedConversation])
+
   return (
-    <div className={`${isMobile ? 'h-[calc(100vh-128px)]' : 'max-w-6xl mx-auto h-[calc(100vh-200px)]'}`}>
+    <div className={`${isMobile ? (selectedConversation ? 'h-screen' : 'h-[calc(100vh-128px)]') : 'max-w-6xl mx-auto h-[calc(100vh-200px)]'}`}>
       <div className={`${isMobile ? 'h-full' : 'bg-white rounded-lg shadow-sm border border-gray-200 h-full'} flex`}>
         {/* Lista de conversas */}
         <div className={`${
@@ -224,7 +239,7 @@ const Messages = () => {
                     <div className="flex items-center space-x-3">
                       <div className="relative">
                         <img
-                          src={conversation.user.avatar || '/default-avatar.png'}
+                          src={getImageUrl(conversation.user.avatar) || '/default-avatar.png'}
                           alt={conversation.user.name}
                           className="w-10 h-10 rounded-full object-cover transition-transform duration-300 hover:scale-110"
                         />
@@ -289,7 +304,7 @@ const Messages = () => {
                 )}
                 <div className="flex items-center space-x-3 animate-fade-in" style={{ animationDelay: '0.1s' }}>
                   <img
-                    src={conversations?.find(c => c.id === selectedConversation)?.user.avatar || '/default-avatar.png'}
+                    src={getImageUrl(conversations?.find(c => c.id === selectedConversation)?.user.avatar) || '/default-avatar.png'}
                     alt="Avatar"
                     className="w-8 h-8 rounded-full object-cover transition-transform duration-300 hover:scale-110"
                   />

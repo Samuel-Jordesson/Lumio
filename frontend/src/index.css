@@ -321,3 +321,19 @@
     will-change: opacity, transform;
   }
 }
+
+/* Mobile conversation mode - hide navigation */
+@media (max-width: 768px) {
+  body.hide-mobile-nav .mobile-bottom-nav {
+    transform: translateY(100%) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: all 0.3s ease-in-out !important;
+  }
+  
+  body.hide-mobile-nav .mobile-header {
+    transform: translateY(-100%) !important;
+    opacity: 0 !important;
+    transition: all 0.3s ease-in-out !important;
+  }
+}
