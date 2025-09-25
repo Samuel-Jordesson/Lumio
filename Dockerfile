@@ -12,9 +12,8 @@ RUN npm install
 # Copiar código do backend
 COPY backend/ ./
 
-# Executar Prisma generate e db push
+# Executar Prisma generate
 RUN npx prisma generate
-RUN npx prisma db push
 
 # Criar diretório para uploads
 RUN mkdir -p uploads
