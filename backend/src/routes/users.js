@@ -53,6 +53,43 @@ router.get('/search', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/users/suggested
+// @desc    Get suggested users
+// @access  Private
+router.get('/suggested', auth, async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        NOT: { id: req.user.id }
+      },
+      select: { id: true, name: true, username: true, avatar: true, bio: true },
+      take: 20,
+      orderBy: { createdAt: 'desc' }
+    });
+
+    const usersWithStats = await Promise.all(
+      users.map(async (user) => {
+        const [followersCount, postsCount, isFollowing] = await Promise.all([
+          prisma.follow.count({ where: { followingId: user.id } }),
+          prisma.post.count({ where: { authorId: user.id } }),
+          prisma.follow.findUnique({
+            where: {
+              followerId_followingId: { followerId: req.user.id, followingId: user.id }
+            }
+          })
+        ]);
+
+        return { ...user, followersCount, postsCount, isFollowing: !!isFollowing };
+      })
+    );
+
+    res.json(usersWithStats);
+  } catch (error) {
+    console.error('Get suggested users error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // @route   GET /api/users/:username
 // @desc    Get user profile
 // @access  Private

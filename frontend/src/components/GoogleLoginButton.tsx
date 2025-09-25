@@ -36,7 +36,7 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ onSuccess }) => {
   const initializeGoogleSignIn = () => {
     if (googleButtonRef.current) {
       window.google.accounts.id.initialize({
-        client_id: '67187945075-kkibh65tnabbfo8qs6uej2ejon6256bc.apps.googleusercontent.com',
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         callback: handleCredentialResponse,
         auto_select: false,
         cancel_on_tap_outside: true,

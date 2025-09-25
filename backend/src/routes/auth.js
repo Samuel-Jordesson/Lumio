@@ -10,7 +10,7 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 // Google OAuth2 Client
-const client = new OAuth2Client('67187945075-kkibh65tnabbfo8qs6uej2ejon6256bc.apps.googleusercontent.com');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // @route   POST /api/auth/register
 // @desc    Register user
@@ -199,7 +199,7 @@ router.post('/google', async (req, res) => {
     // Verificar o token do Google
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: '67187945075-kkibh65tnabbfo8qs6uej2ejon6256bc.apps.googleusercontent.com'
+      audience: process.env.GOOGLE_CLIENT_ID
     });
 
     const payload = ticket.getPayload();

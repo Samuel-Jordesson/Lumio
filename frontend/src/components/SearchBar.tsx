@@ -136,7 +136,7 @@ const SearchBar = ({
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
-      navigate(`/explore?q=${encodeURIComponent(searchTerm.trim())}`)
+      navigate(`/explore?q=${encodeURIComponent(searchTerm.trim())}&tab=users`)
       setSearchTerm('')
       setShowSuggestions(false)
     }

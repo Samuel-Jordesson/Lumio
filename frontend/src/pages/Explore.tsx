@@ -41,15 +41,20 @@ const Explore = () => {
   const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
   const initial = searchParams.get('q') || ''
+  const tabFromUrl = searchParams.get('tab') as 'users' | 'recent' | null
   const [searchTerm, setSearchTerm] = useState(initial)
-  const [activeTab, setActiveTab] = useState<'users' | 'recent'>('recent')
+  const [activeTab, setActiveTab] = useState<'users' | 'recent'>(tabFromUrl || 'recent')
   const [confirmUser, setConfirmUser] = useState<User | null>(null)
   const [commentsPostId, setCommentsPostId] = useState<string | null>(null)
   const isMobile = useIsMobile()
 
   useEffect(() => {
     const q = searchParams.get('q') || ''
+    const tab = searchParams.get('tab') as 'users' | 'recent' | null
     setSearchTerm(q)
+    if (tab) {
+      setActiveTab(tab)
+    }
   }, [searchParams])
 
   useEffect(() => {
@@ -79,6 +84,18 @@ const Explore = () => {
     async () => {
       const response = await api.get('/posts/recent')
       return response.data
+    }
+  )
+
+  // Buscar usuários sugeridos quando não há termo de busca
+  const { data: suggestedUsers, isLoading: suggestedUsersLoading } = useQuery<User[]>(
+    'suggested-users',
+    async () => {
+      const response = await api.get('/users/suggested')
+      return response.data.slice(0, 10) // Limitar a 10 usuários sugeridos
+    },
+    {
+      enabled: normalized.length === 0 && activeTab === 'users'
     }
   )
 
@@ -265,15 +282,87 @@ const Explore = () => {
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Usuários</h2>
           
           {normalized.length === 0 ? (
-            <div className="text-center py-8">
-              <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Pesquise usuários
-              </h3>
-              <p className="text-gray-500">
-                Digite um nome ou username para encontrar usuários
-              </p>
-            </div>
+            suggestedUsersLoading ? (
+              <div className="space-y-4">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center space-x-4 animate-pulse">
+                    <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-300 rounded w-32 mb-2"></div>
+                      <div className="h-3 bg-gray-300 rounded w-24"></div>
+                    </div>
+                    <div className="w-20 h-8 bg-gray-300 rounded"></div>
+                  </div>
+                ))}
+              </div>
+            ) : suggestedUsers && suggestedUsers.length > 0 ? (
+              <div>
+                <div className="mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Usuários Sugeridos</h3>
+                  <p className="text-sm text-gray-500">Descubra pessoas para seguir</p>
+                </div>
+                <div className="space-y-4">
+                  {suggestedUsers.map((user) => (
+                    <div key={user.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                      <Link to={`/profile/${user.username}`} className="flex items-center space-x-4 hover:opacity-90">
+                        <img
+                          src={user.avatar || '/default-avatar.png'}
+                          alt={user.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                        <div>
+                          <h3 className="font-medium text-gray-900">{user.name}</h3>
+                          <p className="text-sm text-gray-500">@{user.username}</p>
+                          {user.bio && (
+                            <p className="text-sm text-gray-600 mt-1">{user.bio}</p>
+                          )}
+                          <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                            <span>{user.followersCount} seguidores</span>
+                            <span>{user.postsCount} posts</span>
+                          </div>
+                        </div>
+                      </Link>
+                      
+                      {currentUser && currentUser.username !== user.username && (
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleFollow(user)}
+                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                              user.isFollowing
+                                ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                : 'bg-primary-600 text-white hover:bg-primary-700'
+                            }`}
+                          >
+                            {user.isFollowing ? 'Seguindo' : 'Seguir'}
+                          </button>
+                          <button
+                            onClick={() => handleMessage(user)}
+                            className="px-3 py-2 rounded-lg font-medium bg-green-600 text-white hover:bg-green-700 transition-colors"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-gray-500">
+                    Digite um nome ou username para encontrar usuários específicos
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Pesquise usuários
+                </h3>
+                <p className="text-gray-500">
+                  Digite um nome ou username para encontrar usuários
+                </p>
+              </div>
+            )
           ) : usersLoading ? (
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (

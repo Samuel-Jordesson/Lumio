@@ -159,17 +159,19 @@ const Profile = () => {
           />
           
           <div className="flex-1">
-            <div className={`flex items-center mb-4 ${isMobile ? 'flex-col space-y-3 space-x-0' : 'space-x-4'}`}>
-              <h1 className="text-2xl font-bold text-gray-900">{profile.name}</h1>
-              <span className="text-gray-500">@{profile.username}</span>
+            <div className={`flex items-center mb-4 ${isMobile ? 'flex-col space-y-2 space-x-0' : 'space-x-4'}`}>
+              <div className={`${isMobile ? 'text-center' : ''}`}>
+                <h1 className="text-2xl font-bold text-gray-900">{profile.name}</h1>
+                <span className="text-gray-500">@{profile.username}</span>
+              </div>
               
               {isOwnProfile ? (
-                <button className="btn-secondary" onClick={() => setShowEdit(true)}>
+                <button className={`${isMobile ? 'w-full' : ''} btn-secondary`} onClick={() => setShowEdit(true)}>
                   <Edit className="w-4 h-4 mr-2" />
                   Editar perfil
                 </button>
               ) : currentUser ? (
-                <div className={`flex items-center ${isMobile ? 'flex-col space-y-2 space-x-0' : 'space-x-2'}`}>
+                <div className={`flex items-center ${isMobile ? 'flex-col space-y-2 space-x-0 w-full' : 'space-x-2'}`}>
                   <button
                     onClick={handleFollow}
                     disabled={isTogglingFollow}
@@ -209,12 +211,10 @@ const Profile = () => {
                 <Users className="w-4 h-4" />
                 <span>{profile.followingCount} seguindo</span>
               </div>
-              {!isMobile && (
-                <div className="flex items-center space-x-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>Membro desde {formatDate(profile.createdAt)}</span>
-                </div>
-              )}
+              <div className={`flex items-center space-x-1 ${isMobile ? 'w-full justify-center' : ''}`}>
+                <Calendar className="w-4 h-4" />
+                <span>Membro desde {formatDate(profile.createdAt)}</span>
+              </div>
             </div>
           </div>
         </div>

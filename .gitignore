@@ -113,3 +113,7 @@ Thumbs.db
 
 # Prisma
 prisma/migrations/
+
+# Google OAuth credentials
+client_secret_*.json
+*client_secret*.json
