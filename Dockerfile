@@ -3,6 +3,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Instalar OpenSSL para Prisma
+RUN apk add --no-cache openssl
+
 # Copiar package.json do backend
 COPY backend/package*.json ./
 
