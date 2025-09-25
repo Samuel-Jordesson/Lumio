@@ -6,8 +6,8 @@ WORKDIR /app
 # Copiar package.json do backend
 COPY backend/package*.json ./
 
-# Instalar dependências
-RUN npm install --only=production
+# Instalar dependências (incluindo dev para Prisma CLI)
+RUN npm install
 
 # Copiar código do backend
 COPY backend/ ./
