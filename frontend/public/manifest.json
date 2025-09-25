@@ -1,0 +1,96 @@
+{
+  "name": "Lumio - Rede Social",
+  "short_name": "Lumio",
+  "description": "Conecte-se, compartilhe e descubra pessoas na Lumio",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "pt-BR",
+  "categories": ["social", "lifestyle", "entertainment"],
+  "icons": [
+    {
+      "src": "/Group 13.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Group 13.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Group 13.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/Group 13.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Novo Post",
+      "short_name": "Post",
+      "description": "Criar um novo post",
+      "url": "/?action=create-post",
+      "icons": [
+        {
+          "src": "/Group 13.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Mensagens",
+      "short_name": "Chat",
+      "description": "Ver mensagens",
+      "url": "/messages",
+      "icons": [
+        {
+          "src": "/Group 13.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Explorar",
+      "short_name": "Explore",
+      "description": "Descobrir pessoas",
+      "url": "/explore",
+      "icons": [
+        {
+          "src": "/Group 13.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

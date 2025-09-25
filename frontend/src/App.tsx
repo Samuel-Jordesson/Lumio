@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import { SocketProvider } from './contexts/SocketContext'
 import PrivateRoute from './components/PrivateRoute'
 import Layout from './components/Layout'
+import PWAInstallPrompt from './components/PWAInstallPrompt'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Feed from './pages/Feed'
@@ -29,6 +30,9 @@ function App() {
               <Route path="explore" element={<Explore />} />
             </Route>
           </Routes>
+          
+          {/* PWA Install Prompt */}
+          <PWAInstallPrompt />
         </SocketProvider>
       </AuthProvider>
     </ErrorBoundary>
