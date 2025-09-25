@@ -5,7 +5,9 @@ WORKDIR /app
 
 # Copiar package.json do backend
 COPY backend/package*.json ./
-RUN npm install
+
+# Instalar dependências
+RUN npm install --only=production
 
 # Copiar código do backend
 COPY backend/ ./
