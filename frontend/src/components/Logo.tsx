@@ -1,0 +1,86 @@
+import React from 'react'
+
+interface LogoProps {
+  className?: string
+  color?: string
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+  animated?: boolean
+  variant?: 'default' | 'white' | 'dark' | 'primary' | 'gray'
+}
+
+const Logo: React.FC<LogoProps> = ({ 
+  className = "", 
+  color, 
+  size = "md",
+  animated = true,
+  variant = "default"
+}) => {
+  // Cores por variante
+  const colorVariants = {
+    default: "#3b82f6", // primary-600
+    white: "#ffffff",
+    dark: "#1f2937", // gray-800
+    primary: "#3b82f6", // primary-600
+    gray: "#6b7280" // gray-500
+  }
+
+  const finalColor = color || colorVariants[variant]
+  const sizeClasses = {
+    sm: "w-6 h-6",
+    md: "w-8 h-8", 
+    lg: "w-12 h-12",
+    xl: "w-16 h-16",
+    "2xl": "w-24 h-24"
+  }
+
+  const animationClass = animated ? "hover:scale-110 transition-transform duration-300" : ""
+
+  return (
+    <svg 
+      width="100%" 
+      height="100%" 
+      viewBox="0 0 5173 2576" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+      className={`${sizeClasses[size]} ${animationClass} ${className}`}
+    >
+      <path 
+        d="M607.001 105.536C739.502 80.0395 1254.42 24.5832 482.386 1203.68C-289.647 2382.77 259.786 2382.75 710.257 2273.42" 
+        stroke={finalColor} 
+        strokeWidth="191" 
+        strokeLinecap="round"
+      />
+      <path 
+        d="M1177.98 1233.82C1177.98 1233.82 698.523 2226.35 1145.29 2297.44C1607.36 2370.96 1894 1099.54 1894 1099.54" 
+        stroke={finalColor} 
+        strokeWidth="191" 
+        strokeLinecap="round"
+      />
+      <path 
+        d="M2518.93 2323.51C2518.93 2323.51 3070.31 1191.78 2609.58 1120.9C2133.08 1047.6 1808 2323.04 1808 2323.04" 
+        stroke={finalColor} 
+        strokeWidth="191" 
+        strokeLinecap="round"
+      />
+      <path 
+        d="M3254.6 2325.99C3254.6 2325.99 3810.48 1202.27 3336.63 1128.99C3117.78 1095.14 2865.45 1537.02 2737.5 1769.54" 
+        stroke={finalColor} 
+        strokeWidth="191" 
+        strokeLinecap="round"
+      />
+      <path 
+        d="M3548 2319.48L3952.93 1120.72" 
+        stroke={finalColor} 
+        strokeWidth="191" 
+        strokeLinecap="round"
+      />
+      <path 
+        d="M4698.49 1129.2C4785.14 1163.92 4852.39 1253.09 4879.93 1389.46C4907.29 1524.97 4892.12 1696.37 4822.83 1869.31C4753.53 2042.25 4646.14 2176.7 4532.78 2255.82C4418.7 2335.44 4308.48 2353.49 4221.83 2318.77C4135.18 2284.05 4067.94 2194.88 4040.4 2058.52C4013.04 1923.01 4028.2 1751.61 4097.5 1578.67C4166.8 1405.73 4274.18 1271.28 4387.54 1192.16C4501.63 1112.54 4611.84 1094.48 4698.49 1129.2Z" 
+        stroke={finalColor} 
+        strokeWidth="171"
+      />
+    </svg>
+  )
+}
+
+export default Logo

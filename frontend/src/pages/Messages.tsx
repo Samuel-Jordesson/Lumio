@@ -3,7 +3,7 @@ import { useQuery } from 'react-query'
 import { useSocket } from '../contexts/SocketContext'
 import { useAuth } from '../contexts/AuthContext'
 import { api } from '../services/api'
-import { Send, Search, MoreVertical, ArrowLeft } from 'lucide-react'
+import { Send, Search, MoreVertical, ArrowLeft, MessageCircle } from 'lucide-react'
 import useIsMobile from '../hooks/useIsMobile'
 import { getImageUrl } from '../utils/imageUtils'
 
@@ -36,7 +36,8 @@ const Messages = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [newlyAddedMessages, setNewlyAddedMessages] = useState<Set<string>>(new Set())
-  const [isTyping, setIsTyping] = useState(false)
+  const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set())
+  const [isTypingTimeout, setIsTypingTimeout] = useState<NodeJS.Timeout | null>(null)
   const { socket } = useSocket()
   const { user } = useAuth()
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -56,14 +57,6 @@ const Messages = () => {
     async () => {
       const response = await api.get('/conversations')
       return response.data
-    },
-    {
-      onSuccess: (data) => {
-        // Auto-selecionar primeira conversa se não há nenhuma selecionada
-        if (data && data.length > 0 && !selectedConversation) {
-          setSelectedConversation(data[0].id)
-        }
-      }
     }
   )
 
@@ -117,19 +110,52 @@ const Messages = () => {
         }
       })
 
+      // Eventos de digitação
+      socket.on('user-typing', (data: { userId: string, conversationId: string, isTyping: boolean }) => {
+        if (data.conversationId === selectedConversation && data.userId !== user?.id) {
+          setTypingUsers(prev => {
+            const newSet = new Set(prev)
+            if (data.isTyping) {
+              newSet.add(data.userId)
+            } else {
+              newSet.delete(data.userId)
+            }
+            return newSet
+          })
+        }
+      })
+
       return () => {
         socket.emit('leave-conversation', selectedConversation)
         socket.off('new-message')
+        socket.off('user-typing')
       }
     }
-  }, [socket, selectedConversation])
+  }, [socket, selectedConversation, user?.id])
+
+  // Cleanup timeout ao desmontar componente
+  useEffect(() => {
+    return () => {
+      if (isTypingTimeout) {
+        clearTimeout(isTypingTimeout)
+      }
+    }
+  }, [isTypingTimeout])
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation) return
 
     const messageContent = newMessage
     setNewMessage('')
-    setIsTyping(false)
+    
+    // Para indicador de digitação ao enviar mensagem
+    if (socket && selectedConversation) {
+      socket.emit('typing-stop', selectedConversation)
+    }
+    if (isTypingTimeout) {
+      clearTimeout(isTypingTimeout)
+      setIsTypingTimeout(null)
+    }
 
     try {
       const response = await api.post(`/conversations/${selectedConversation}/messages`, {
@@ -193,16 +219,16 @@ const Messages = () => {
     <div className={`${isMobile ? (selectedConversation ? 'h-screen' : 'h-[calc(100vh-128px)]') : 'max-w-6xl mx-auto h-[calc(100vh-200px)]'}`}>
       <div className={`${isMobile ? 'h-full' : 'bg-white rounded-lg shadow-sm border border-gray-200 h-full'} flex`}>
         {/* Lista de conversas */}
-        <div className={`${
+        <div         className={`${
           isMobile 
             ? selectedConversation 
               ? 'hidden' 
-              : 'w-full bg-white animate-slide-in-left' 
-            : 'w-1/3 border-r border-gray-200 animate-slide-in-left'
+              : 'w-full bg-white' 
+            : 'w-1/3 border-r border-gray-200'
         }`}>
-          <div className="p-4 border-b border-gray-200 animate-slide-in-down">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 animate-fade-in">Mensagens</h2>
-            <div className="relative animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Mensagens</h2>
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 transition-colors duration-200" />
               <input
                 type="text"
@@ -226,12 +252,11 @@ const Messages = () => {
                 ))}
               </div>
             ) : (
-              <div className="divide-y divide-gray-200 stagger-fade-in">
+              <div className="divide-y divide-gray-200">
                 {conversations?.map((conversation, index) => (
                   <div
                     key={conversation.id}
                     onClick={() => setSelectedConversation(conversation.id)}
-                    style={{ animationDelay: `${index * 0.1}s` }}
                     className={`p-4 cursor-pointer hover:bg-gray-50 transition-all duration-300 hover-lift ${
                       selectedConversation === conversation.id ? 'bg-primary-50 shadow-sm' : ''
                     }`}
@@ -293,20 +318,20 @@ const Messages = () => {
           {selectedConversation ? (
             <>
               {/* Header da conversa */}
-              <div className={`${isMobile ? 'fixed top-0 left-0 right-0 z-50 bg-white shadow-md' : ''} p-4 border-b border-gray-200 flex items-center justify-between animate-slide-in-down`}>
+              <div className={`${isMobile ? 'fixed top-0 left-0 right-0 z-50 bg-white shadow-md' : ''} p-4 border-b border-gray-200 flex items-center justify-between`}>
                 {isMobile && (
                   <button
                     onClick={() => setSelectedConversation(null)}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-all duration-300 mr-2 hover:scale-110"
+                    className="p-2 hover:bg-gray-100 rounded-full"
                   >
                     <ArrowLeft className="w-5 h-5 text-gray-600" />
                   </button>
                 )}
-                <div className="flex items-center space-x-3 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                <div className="flex items-center space-x-3">
                   <img
                     src={getImageUrl(conversations?.find(c => c.id === selectedConversation)?.user.avatar) || '/default-avatar.png'}
                     alt="Avatar"
-                    className={`${isMobile ? 'w-10 h-10' : 'w-8 h-8'} rounded-full object-cover transition-transform duration-300 hover:scale-110`}
+                    className={`${isMobile ? 'w-10 h-10' : 'w-8 h-8'} rounded-full object-cover`}
                   />
                   <div>
                     <p className={`${isMobile ? 'text-heading-xs' : 'font-medium'} text-gray-900`}>
@@ -317,7 +342,7 @@ const Messages = () => {
                     </p>
                   </div>
                 </div>
-                <button className="p-2 hover:bg-gray-100 rounded-full transition-all duration-300 hover:scale-110 hover-rotate animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <button className="p-2 hover:bg-gray-100 rounded-full">
                   <MoreVertical className="w-4 h-4 text-gray-500" />
                 </button>
               </div>
@@ -356,9 +381,9 @@ const Messages = () => {
                 })}
                 
                 {/* Indicador de digitação */}
-                {isTyping && (
+                {typingUsers.size > 0 && (
                   <div className="flex justify-start">
-                    <div className="bg-gray-200 text-gray-900 max-w-xs px-4 py-2 rounded-lg message-bounce-in">
+                    <div className="bg-gray-200 text-gray-900 max-w-xs px-4 py-2 rounded-lg">
                       <div className="flex items-center space-x-1 typing-dots">
                         <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
                         <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
@@ -372,17 +397,36 @@ const Messages = () => {
               </div>
 
               {/* Input de mensagem */}
-              <div className={`${isMobile ? 'fixed bottom-0 left-0 right-0 z-50 bg-white shadow-up' : ''} p-4 border-t border-gray-200 animate-slide-in-up`} style={{ animationDelay: '0.3s' }}>
+              <div className={`${isMobile ? 'fixed bottom-0 left-0 right-0 z-50 bg-white shadow-up' : ''} p-4 border-t border-gray-200`}>
                 <div className="flex items-center space-x-2">
                   <input
                     type="text"
                     value={newMessage}
                     onChange={(e) => {
                       setNewMessage(e.target.value)
-                      // Simula indicador de digitação (apenas visual)
-                      if (e.target.value.trim() && !isTyping) {
-                        setIsTyping(true)
-                        setTimeout(() => setIsTyping(false), 3000)
+                      
+                      // Envia evento de digitação
+                      if (e.target.value.trim() && socket && selectedConversation) {
+                        socket.emit('typing-start', selectedConversation)
+                        
+                        // Limpa timeout anterior
+                        if (isTypingTimeout) {
+                          clearTimeout(isTypingTimeout)
+                        }
+                        
+                        // Para de digitar após 2 segundos sem atividade
+                        const timeout = setTimeout(() => {
+                          socket.emit('typing-stop', selectedConversation)
+                        }, 2000)
+                        
+                        setIsTypingTimeout(timeout)
+                      } else if (!e.target.value.trim() && socket && selectedConversation) {
+                        // Para de digitar quando campo fica vazio
+                        socket.emit('typing-stop', selectedConversation)
+                        if (isTypingTimeout) {
+                          clearTimeout(isTypingTimeout)
+                          setIsTypingTimeout(null)
+                        }
                       }
                     }}
                     onKeyPress={(e) => {
@@ -412,11 +456,12 @@ const Messages = () => {
           ) : (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
+                <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Selecione uma conversa
+                  Selecione um contato
                 </h3>
                 <p className="text-gray-500">
-                  Escolha uma conversa para começar a enviar mensagens
+                  Escolha uma conversa na lista ao lado para começar a conversar
                 </p>
               </div>
             </div>

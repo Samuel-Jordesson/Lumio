@@ -6,6 +6,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import ConfirmDialog from '../components/ConfirmDialog'
 import PostImageGallery from '../components/PostImageGallery'
+import PostComments from '../components/PostComments'
 import toast from 'react-hot-toast'
 import useIsMobile from '../hooks/useIsMobile'
 
@@ -41,8 +42,9 @@ const Explore = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const initial = searchParams.get('q') || ''
   const [searchTerm, setSearchTerm] = useState(initial)
-  const [activeTab, setActiveTab] = useState<'users' | 'trending'>('users')
+  const [activeTab, setActiveTab] = useState<'users' | 'recent'>('recent')
   const [confirmUser, setConfirmUser] = useState<User | null>(null)
+  const [commentsPostId, setCommentsPostId] = useState<string | null>(null)
   const isMobile = useIsMobile()
 
   useEffect(() => {
@@ -72,10 +74,10 @@ const Explore = () => {
     }
   )
 
-  const { data: trendingPosts, isLoading: postsLoading } = useQuery<TrendingPost[]>(
-    'trending-posts',
+  const { data: recentPosts, isLoading: postsLoading } = useQuery<TrendingPost[]>(
+    'recent-posts',
     async () => {
-      const response = await api.get('/posts/trending')
+      const response = await api.get('/posts/recent')
       return response.data
     }
   )
@@ -162,6 +164,17 @@ const Explore = () => {
         {/* Tabs */}
         <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
           <button
+            onClick={() => setActiveTab('recent')}
+            className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-colors ${
+              activeTab === 'recent'
+                ? 'bg-white text-primary-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span>Recentes</span>
+          </button>
+          <button
             onClick={() => setActiveTab('users')}
             className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-colors ${
               activeTab === 'users'
@@ -172,22 +185,82 @@ const Explore = () => {
             <Users className="w-4 h-4" />
             <span>Usuários</span>
           </button>
-          <button
-            onClick={() => setActiveTab('trending')}
-            className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-colors ${
-              activeTab === 'trending'
-                ? 'bg-white text-primary-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4" />
-            <span>Em Alta</span>
-          </button>
         </div>
       </div>
 
       {/* Conteúdo */}
-      {activeTab === 'users' ? (
+      {activeTab === 'recent' && (
+        <div className={`${isMobile ? 'bg-white rounded-lg border border-gray-200 p-4' : 'card'}`}>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Posts Recentes</h2>
+          
+          {postsLoading ? (
+            <div className="space-y-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-300 rounded w-24 mb-2"></div>
+                      <div className="h-3 bg-gray-300 rounded w-16"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-300 rounded"></div>
+                    <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : recentPosts && recentPosts.length > 0 ? (
+            <div className="space-y-6">
+              {recentPosts.map((post) => (
+                <div key={post.id} className="border-b border-gray-200 pb-6 last:border-b-0">
+                  <Link to={`/profile/${post.author.username}`} className="flex items-center space-x-3 mb-4 hover:opacity-90">
+                    <img
+                      src={post.author.avatar || '/default-avatar.png'}
+                      alt={post.author.name}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="font-medium text-gray-900">{post.author.name}</p>
+                      <p className="text-sm text-gray-500">
+                        @{post.author.username} • {formatDate(post.createdAt)}
+                      </p>
+                    </div>
+                  </Link>
+                  
+                  <div className="mb-4">
+                    <p className="text-gray-900 mb-3">{post.content}</p>
+                    <PostImageGallery images={post.images || []} />
+                  </div>
+                  
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <span>{post.likesCount} curtidas</span>
+                    <button 
+                      onClick={() => setCommentsPostId(post.id)}
+                      className="hover:text-blue-500 transition-colors"
+                    >
+                      {post.commentsCount} comentários
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Nenhum post recente
+              </h3>
+              <p className="text-gray-500">
+                Os posts mais recentes aparecerão aqui
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'users' && (
         <div className={`${isMobile ? 'bg-white rounded-lg border border-gray-200 p-4' : 'card'}`}>
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Usuários</h2>
           
@@ -266,70 +339,6 @@ const Explore = () => {
             </div>
           )}
         </div>
-              ) : (
-        <div className={`${isMobile ? 'bg-white rounded-lg border border-gray-200 p-4' : 'card'}`}>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Posts em Alta</h2>
-          
-          {postsLoading ? (
-            <div className="space-y-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                    <div className="flex-1">
-                      <div className="h-4 bg-gray-300 rounded w-24 mb-2"></div>
-                      <div className="h-3 bg-gray-300 rounded w-16"></div>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="h-4 bg-gray-300 rounded"></div>
-                    <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : trendingPosts && trendingPosts.length > 0 ? (
-            <div className="space-y-6">
-              {trendingPosts.map((post) => (
-                <div key={post.id} className="border-b border-gray-200 pb-6 last:border-b-0">
-                  <Link to={`/profile/${post.author.username}`} className="flex items-center space-x-3 mb-4 hover:opacity-90">
-                    <img
-                      src={post.author.avatar || '/default-avatar.png'}
-                      alt={post.author.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <div>
-                      <p className="font-medium text-gray-900">{post.author.name}</p>
-                      <p className="text-sm text-gray-500">
-                        @{post.author.username} • {formatDate(post.createdAt)}
-                      </p>
-                    </div>
-                  </Link>
-                  
-                  <div className="mb-4">
-                    <p className="text-gray-900 mb-3">{post.content}</p>
-                    <PostImageGallery images={post.images || []} />
-                  </div>
-                  
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <span>{post.likesCount} curtidas</span>
-                    <span>{post.commentsCount} comentários</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Nenhum post em alta
-              </h3>
-              <p className="text-gray-500">
-                Os posts mais populares aparecerão aqui
-              </p>
-            </div>
-          )}
-        </div>
       )}
 
       <ConfirmDialog
@@ -341,6 +350,14 @@ const Explore = () => {
         onConfirm={confirmUnfollow}
         onClose={() => setConfirmUser(null)}
       />
+
+      {commentsPostId && (
+        <PostComments
+          postId={commentsPostId}
+          isOpen={!!commentsPostId}
+          onClose={() => setCommentsPostId(null)}
+        />
+      )}
     </div>
   )
 }

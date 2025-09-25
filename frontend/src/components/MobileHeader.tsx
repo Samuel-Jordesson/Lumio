@@ -1,8 +1,11 @@
 import { useAuth } from '../contexts/AuthContext'
-import { Bell, Search, Menu, X } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Bell, Menu, X, Settings } from 'lucide-react'
 import { useState } from 'react'
 import { getImageUrl } from '../utils/imageUtils'
+import SearchBar from './SearchBar'
+import Logo from './Logo'
+import NotificationBell from './NotificationBell'
+import SettingsModal from './SettingsModal'
 
 interface MobileHeaderProps {
   showSearch?: boolean
@@ -16,16 +19,8 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
   onMenuClick 
 }) => {
   const { user, logout } = useAuth()
-  const navigate = useNavigate()
   const [showUserMenu, setShowUserMenu] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const q = searchTerm.trim()
-      navigate(q ? `/explore?q=${encodeURIComponent(q)}` : '/explore')
-    }
-  }
+  const [showSettings, setShowSettings] = useState(false)
 
   return (
     <header className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 py-3 z-40 mobile-header">
@@ -37,43 +32,28 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
               <Menu className="w-6 h-6 text-gray-600" />
             </button>
           )}
-          <div className="flex items-center space-x-2">
-            <img 
-              src="/noBgColor.png" 
-              alt="Lumio" 
-              className="w-6 h-6 hover:scale-110 transition-transform duration-300"
+          <div className="flex items-center">
+            <Logo 
+              size="md" 
+              variant="primary" 
+              className="hover:scale-110 transition-transform duration-300 cursor-pointer"
             />
-            <h1 className="text-xl font-bold text-primary-600">
-              {title || 'Lumio'}
-            </h1>
           </div>
         </div>
 
         {/* Barra de pesquisa (quando habilitada) */}
         {showSearch && (
           <div className="flex-1 mx-4 max-w-sm">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Pesquisar..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-            </div>
+            <SearchBar 
+              placeholder="Pesquisar..."
+              className="w-full"
+            />
           </div>
         )}
 
         {/* Ações do usuário */}
         <div className="flex items-center space-x-2">
-          <button className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <Bell className="w-5 h-5 text-gray-600" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              3
-            </span>
-          </button>
+          <NotificationBell />
           
           <div className="relative">
             <button
@@ -105,6 +85,16 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
                   </button>
                   <button
                     onClick={() => {
+                      setShowSettings(true)
+                      setShowUserMenu(false)
+                    }}
+                    className="w-full flex items-center space-x-2 text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>Configurações</span>
+                  </button>
+                  <button
+                    onClick={() => {
                       logout()
                       setShowUserMenu(false)
                     }}
@@ -122,6 +112,11 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
           </div>
         </div>
       </div>
+
+      <SettingsModal 
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
     </header>
   )
 }

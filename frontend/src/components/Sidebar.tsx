@@ -17,38 +17,37 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
   ]
 
   return (
-    <aside className="fixed left-0 top-0 w-64 bg-white border-r border-gray-200 h-screen pt-20 z-30 overflow-y-auto animate-slide-in-left">
+    <aside className="fixed left-0 top-0 w-64 bg-white border-r border-gray-200 h-screen pt-20 z-30 overflow-y-auto">
       <div className="p-6">
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
         </div>
         
-        <nav className="space-y-2 stagger-fade-in">
+        <nav className="space-y-2">
           {navItems.map((item, index) => (
             <NavLink
               key={item.path}
               to={item.path}
-              style={{ animationDelay: `${index * 0.1 + 0.2}s` }}
               className={({ isActive }) =>
-                `flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 hover:scale-105 hover-lift ${
+                `flex items-center space-x-3 px-4 py-3 rounded-lg ${
                   isActive
                     ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600 shadow-sm'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`
               }
             >
-              <item.icon className="w-5 h-5 transition-transform duration-200" />
+              <item.icon className="w-5 h-5" />
               <span className="font-medium">{item.label}</span>
             </NavLink>
           ))}
         </nav>
         
-        <div className="mt-8 pt-6 border-t border-gray-200 animate-slide-in-up" style={{ animationDelay: '0.6s' }}>
+        <div className="mt-8 pt-6 border-t border-gray-200">
           <button 
             onClick={onNewPost} 
-            className="w-full flex items-center justify-center space-x-2 bg-primary-600 text-white px-4 py-3 rounded-lg hover:bg-primary-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover-glow"
+            className="w-full flex items-center justify-center space-x-2 bg-primary-600 text-white px-4 py-3 rounded-lg hover:bg-primary-700"
           >
-            <Plus className="w-5 h-5 transition-transform duration-200 hover:rotate-90" />
+            <Plus className="w-5 h-5" />
             <span className="font-medium">Novo Post</span>
           </button>
         </div>

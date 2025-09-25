@@ -14,8 +14,7 @@ const Layout = () => {
 
   // Aguardar detecção de mobile para evitar flash
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 100)
-    return () => clearTimeout(timer)
+    setIsLoading(false)
   }, [])
 
   if (isLoading) {
@@ -25,9 +24,9 @@ const Layout = () => {
           <img 
             src="/noBgColor.png" 
             alt="Lumio" 
-            className="w-12 h-12 animate-pulse"
+            className="w-12 h-12"
           />
-          <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full"></div>
         </div>
       </div>
     )

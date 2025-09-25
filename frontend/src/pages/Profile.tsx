@@ -148,9 +148,9 @@ const Profile = () => {
   const isOwnProfile = !!currentUser && profile.id === currentUser.id
 
   return (
-    <div className={`${isMobile ? '' : 'max-w-4xl'} mx-auto animate-fade-in`}>
+    <div className={`${isMobile ? '' : 'max-w-4xl'} mx-auto`}>
       {/* Header do perfil */}
-      <div className={`${isMobile ? 'bg-white rounded-lg border border-gray-200 p-4' : 'card'} mb-6 animate-slide-in-up hover-lift`}>
+      <div className={`${isMobile ? 'bg-white rounded-lg border border-gray-200 p-4' : 'card'} mb-6`}>
         <div className={`flex items-start ${isMobile ? 'flex-col text-center space-y-4' : 'space-x-6'}`}>
           <img
             src={profile.avatar || '/default-avatar.png'}
@@ -164,12 +164,12 @@ const Profile = () => {
               <span className="text-gray-500">@{profile.username}</span>
               
               {isOwnProfile ? (
-                <button className="btn-secondary animate-slide-in-right" onClick={() => setShowEdit(true)}>
+                <button className="btn-secondary" onClick={() => setShowEdit(true)}>
                   <Edit className="w-4 h-4 mr-2" />
                   Editar perfil
                 </button>
               ) : currentUser ? (
-                <div className={`flex items-center ${isMobile ? 'flex-col space-y-2 space-x-0' : 'space-x-2'} animate-slide-in-right`}>
+                <div className={`flex items-center ${isMobile ? 'flex-col space-y-2 space-x-0' : 'space-x-2'}`}>
                   <button
                     onClick={handleFollow}
                     disabled={isTogglingFollow}
@@ -221,7 +221,7 @@ const Profile = () => {
       </div>
 
       {/* Posts do usuário */}
-      <div className={`${isMobile ? 'bg-white rounded-lg border border-gray-200 p-4' : 'card'} animate-slide-in-up`} style={{ animationDelay: '0.2s' }}>
+      <div className={`${isMobile ? 'bg-white rounded-lg border border-gray-200 p-4' : 'card'}`}>
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Posts</h2>
         
         {postsLoading ? (
@@ -234,11 +234,10 @@ const Profile = () => {
             ))}
           </div>
         ) : posts && posts.length > 0 ? (
-          <div className="space-y-6 stagger-fade-in">
+          <div className="space-y-6">
             {posts.map((post, index) => (
               <div
                 key={post.id}
-                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <ProfilePostCard
                   post={post}

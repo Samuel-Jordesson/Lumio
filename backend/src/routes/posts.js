@@ -143,7 +143,7 @@ router.post('/:id/like', auth, async (req, res) => {
 
     const post = await prisma.post.findUnique({
       where: { id },
-      select: { id: true }
+      select: { id: true, authorId: true }
     });
 
     if (!post) {
@@ -179,6 +179,19 @@ router.post('/:id/like', auth, async (req, res) => {
           postId: id
         }
       });
+
+      // Create notification if user is liking someone else's post
+      if (post.authorId !== req.user.id) {
+        await prisma.notification.create({
+          data: {
+            type: 'like',
+            userId: post.authorId,
+            senderId: req.user.id,
+            postId: id
+          }
+        });
+      }
+
       res.json({ message: 'Post liked' });
     }
   } catch (error) {
@@ -349,6 +362,141 @@ router.get('/trending', async (req, res) => {
     })));
   } catch (error) {
     console.error('Get trending posts error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/posts/recent
+// @desc    Get all recent posts from everyone
+// @access  Public
+router.get('/recent', async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany({
+      include: {
+        author: {
+          select: {
+            name: true,
+            username: true,
+            avatar: true
+          }
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50
+    });
+
+    res.json(posts.map(post => ({
+      id: post.id,
+      content: post.content,
+      images: post.images ? JSON.parse(post.images) : [],
+      author: post.author,
+      likesCount: post._count.likes,
+      commentsCount: post._count.comments,
+      createdAt: post.createdAt
+    })));
+  } catch (error) {
+    console.error('Get recent posts error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/posts/:id/comments
+// @desc    Get comments for a post
+// @access  Private
+router.get('/:id/comments', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const comments = await prisma.comment.findMany({
+      where: {
+        postId: id
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatar: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
+    });
+
+    res.json(comments);
+  } catch (error) {
+    console.error('Get comments error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/posts/:id/comments
+// @desc    Add comment to a post
+// @access  Private
+router.post('/:id/comments', auth, [
+  body('content', 'Comment content is required').not().isEmpty().isLength({ max: 500 })
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ message: errors.array()[0].msg });
+  }
+
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+
+    // Check if post exists
+    const post = await prisma.post.findUnique({
+      where: { id },
+      select: { id: true, authorId: true }
+    });
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const comment = await prisma.comment.create({
+      data: {
+        content,
+        userId: req.user.id,
+        postId: id
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatar: true
+          }
+        }
+      }
+    });
+
+    // Create notification if user is commenting on someone else's post
+    if (post.authorId !== req.user.id) {
+      await prisma.notification.create({
+        data: {
+          type: 'comment',
+          userId: post.authorId,
+          senderId: req.user.id,
+          postId: id
+        }
+      });
+    }
+
+    res.json(comment);
+  } catch (error) {
+    console.error('Add comment error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

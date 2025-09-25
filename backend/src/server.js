@@ -18,6 +18,7 @@ const io = new Server(server, {
       "https://localhost:3000", 
       /^https:\/\/.*\.vercel\.app$/,
       /^https:\/\/.*\.onrender\.com$/,
+      /^https:\/\/.*\.railway\.app$/,
       "https://frontend-lumio-az9k-en13h6lps-samueljordessons-projects.vercel.app",
       "https://backend-lumio-production.up.railway.app",
       "https://lumio-frontend.onrender.com"
@@ -55,13 +56,17 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rate limiting
+// Rate limiting - Configuração mais permissiva para desenvolvimento
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 1000, // limit each IP to 1000 requests per windowMs (aumentado para desenvolvimento)
   trustProxy: true, // trust Railway proxy
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Pular rate limiting em desenvolvimento local
+    return process.env.NODE_ENV === 'development' && req.ip === '::1';
+  }
 });
 app.use('/api/', limiter);
 
@@ -107,6 +112,23 @@ io.on('connection', (socket) => {
     socket.leave(conversationId);
     console.log(`User ${socket.userId} left conversation ${conversationId}`);
   });
+
+  // Eventos de digitação
+  socket.on('typing-start', (conversationId) => {
+    socket.to(conversationId).emit('user-typing', {
+      userId: socket.userId,
+      conversationId,
+      isTyping: true
+    });
+  });
+
+  socket.on('typing-stop', (conversationId) => {
+    socket.to(conversationId).emit('user-typing', {
+      userId: socket.userId,
+      conversationId,
+      isTyping: false
+    });
+  });
   
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.userId);
@@ -118,6 +140,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/posts', require('./routes/posts'));
 app.use('/api/conversations', require('./routes/conversations'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

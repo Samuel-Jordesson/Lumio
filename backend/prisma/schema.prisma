@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -25,6 +25,8 @@ model User {
   receivedMessages         Message[]                 @relation("ReceivedMessages")
   sentMessages             Message[]                 @relation("SentMessages")
   posts                    Post[]
+  notifications            Notification[]            @relation("UserNotifications")
+  sentNotifications        Notification[]            @relation("NotificationSender")
 
   @@map("users")
 }
@@ -114,4 +116,19 @@ model Message {
   sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@map("messages")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String   // 'like', 'follow', 'comment'
+  userId    String   // Usuário que recebe a notificação
+  senderId  String   // Usuário que fez a ação
+  postId    String?  // ID do post (para curtidas e comentários)
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  user      User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  sender    User     @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
 }

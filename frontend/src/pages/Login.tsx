@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import GoogleLoginButton from '../components/GoogleLoginButton'
+import Logo from '../components/Logo'
 import useIsMobile from '../hooks/useIsMobile'
 
 interface LoginForm {
@@ -29,17 +30,14 @@ const Login = () => {
     <div className={`min-h-screen flex items-center justify-center bg-gray-50 ${isMobile ? 'py-8 px-4' : 'py-12 px-4 sm:px-6 lg:px-8'}`}>
       <div className={`${isMobile ? 'w-full' : 'max-w-md w-full'} space-y-8`}>
         <div>
-          <div className="flex justify-center mb-4">
-            <img 
-              src="/noBgColor.png" 
-              alt="Lumio" 
-              className="w-16 h-16 hover:scale-110 transition-transform duration-300"
+          <div className="flex justify-center mb-6">
+            <Logo 
+              size="2xl" 
+              variant="primary" 
+              className="hover:scale-110 transition-transform duration-300"
             />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Lumio
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-gray-600">
             Entre na sua conta
           </p>
         </div>

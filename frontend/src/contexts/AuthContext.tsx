@@ -18,6 +18,7 @@ interface User {
 interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
+  isLoading: boolean
   login: (emailOrToken: string, password?: string, userData?: User) => Promise<void>
   register: (userData: RegisterData) => Promise<void>
   logout: () => void
@@ -44,6 +45,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -51,6 +53,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
       checkAuth()
+    } else {
+      setIsLoading(false)
     }
   }, [])
 
@@ -67,6 +71,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       delete api.defaults.headers.common['Authorization']
       setUser(null)
       setIsAuthenticated(false)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -160,6 +166,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider value={{
       user,
       isAuthenticated,
+      isLoading,
       login,
       register,
       logout,

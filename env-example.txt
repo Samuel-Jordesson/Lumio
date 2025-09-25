@@ -1,0 +1,54 @@
+# RAILWAY + VERCEL DEPLOY CONFIGURATION
+# Copie este arquivo para .env e configure suas variáveis
+
+# ===========================================
+# BACKEND VARIABLES (Railway)
+# ===========================================
+
+# Environment
+NODE_ENV=production
+
+# Database (Railway PostgreSQL - automático)
+# DATABASE_URL=postgresql://user:pass@host:port/database
+
+# JWT Secret (GERE UMA CHAVE FORTE!)
+JWT_SECRET=sua_chave_jwt_super_secreta_aqui_123456789
+
+# Google OAuth (opcional)
+GOOGLE_CLIENT_ID=seu_google_client_id
+GOOGLE_CLIENT_SECRET=seu_google_client_secret
+
+# Server
+PORT=5000
+
+# ===========================================
+# FRONTEND VARIABLES (Vercel)
+# ===========================================
+
+# API URL (será a URL do Railway)
+VITE_API_URL=https://seu-backend.railway.app
+
+# ===========================================
+# DEPLOYMENT URLs (exemplo)
+# ===========================================
+
+# Railway Backend: https://lumio-backend-production.railway.app
+# Vercel Frontend: https://lumio-frontend.vercel.app
+
+# ===========================================
+# INSTRUÇÕES DE CONFIGURAÇÃO
+# ===========================================
+
+# 1. RAILWAY (Backend):
+#    - NODE_ENV=production
+#    - JWT_SECRET=[sua chave forte]
+#    - GOOGLE_CLIENT_ID=[seu client ID]
+#    - GOOGLE_CLIENT_SECRET=[seu client secret]
+#    - DATABASE_URL=[automático do Railway]
+
+# 2. VERCEL (Frontend):
+#    - VITE_API_URL=https://seu-backend.railway.app
+
+# 3. GERAR JWT_SECRET:
+#    - Use: https://generate-secret.vercel.app/32
+#    - Ou: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
