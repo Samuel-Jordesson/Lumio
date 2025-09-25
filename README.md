@@ -9,20 +9,25 @@ Uma rede social completa inspirada no Instagram e Facebook, desenvolvida para a 
 - **Autenticação completa** - Registro, login e logout
 - **Perfil de usuário** - Edição de perfil, avatar, bio
 - **Feed de posts** - Timeline com posts dos usuários seguidos
-- **Sistema de posts** - Criar posts com texto e imagens (até 4)
+- **Sistema de posts** - Criar posts com texto e imagens (até 10)
 - **Sistema de likes** - Curtir e descurtir posts
+- **Sistema de comentários** - Comentar em posts com modal interativo
 - **Sistema de seguir** - Seguir e deixar de seguir usuários
-- **Mensagens em tempo real** - Chat com Socket.io
-- **Exploração** - Buscar usuários e ver posts em alta
+- **Mensagens em tempo real** - Chat com Socket.io e indicador de digitação
+- **Sistema de notificações** - Notificações para likes, follows e comentários
+- **Busca de usuários** - Busca com sugestões em tempo real
+- **Exploração** - Ver posts recentes e usuários populares
+- **Configurações de conta** - Alterar senha, email e username
 - **Design responsivo** - Interface moderna e intuitiva
+- **Logo personalizada** - Branding completo com favicon
 
 ### 🔄 Em desenvolvimento
 
-- Sistema de comentários
 - Stories
 - Notificações push
 - Compartilhamento de posts
 - Filtros e hashtags
+- Modo escuro
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -214,19 +219,32 @@ Isso irá iniciar:
 
 ## 🚀 Deploy
 
-### Frontend (Vercel/Netlify)
+### Railway + Vercel (Recomendado)
 
-```bash
-cd frontend
-npm run build
-```
+O projeto está configurado para deploy automático:
 
-### Backend (Railway/Heroku)
+- **Backend**: Railway (PostgreSQL + Node.js)
+- **Frontend**: Vercel (React + Vite)
 
-```bash
-cd backend
-npm start
-```
+#### Configuração rápida:
+
+1. **Railway (Backend)**:
+   - Acesse: https://railway.app
+   - Deploy from GitHub → Selecione o repositório
+   - Adicione PostgreSQL
+   - Configure variáveis: `NODE_ENV`, `JWT_SECRET`
+
+2. **Vercel (Frontend)**:
+   - Acesse: https://vercel.com
+   - Import Git Repository → Selecione o repositório
+   - Root Directory: `frontend`
+   - Configure: `VITE_API_URL=https://seu-backend.railway.app`
+
+### Alternativas
+
+- **Render**: Tudo em um lugar (gratuito)
+- **AWS**: EC2 + RDS + CloudFront (escalável)
+- **Heroku**: Simples mas limitado
 
 ## 🤝 Contribuição
 
