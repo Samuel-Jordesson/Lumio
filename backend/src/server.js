@@ -7,7 +7,10 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const { PrismaClient } = require('@prisma/client');
 require('dotenv').config();
+
+const prisma = new PrismaClient();
 
 const app = express();
 const server = createServer(app);
@@ -76,12 +79,26 @@ app.use('/api/', limiter);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
-    message: 'Lumio API is running!',
-    timestamp: new Date().toISOString()
-  })
+app.get('/api/health', async (req, res) => {
+  try {
+    // Testar conexão com o banco
+    await prisma.$queryRaw`SELECT 1`;
+    
+    res.status(200).json({ 
+      status: 'OK', 
+      message: 'Lumio API is running!',
+      database: 'Connected',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(503).json({ 
+      status: 'ERROR', 
+      message: 'Database connection failed',
+      database: 'Disconnected',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 })
 
 // Socket.io authentication middleware
