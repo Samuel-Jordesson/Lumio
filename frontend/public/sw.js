@@ -1,9 +1,9 @@
-const CACHE_NAME = 'lumio-v1.0.0';
+const CACHE_NAME = 'lumio-v1.0.1';
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',
   '/static/css/main.css',
-  '/Group 13.png',
+  '/Group 140.png',
   '/manifest.json',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
   'https://accounts.google.com/gsi/client'
@@ -108,51 +108,89 @@ self.addEventListener('sync', (event) => {
 self.addEventListener('push', (event) => {
   console.log('Service Worker: Push received');
   
+  let notificationData = {
+    title: 'Lumio',
+    body: 'Nova notificação da Lumio!',
+    icon: '/Group 140.png',
+    badge: '/Group 140.png',
+    tag: 'lumio-notification',
+    requireInteraction: false,
+    silent: false
+  };
+
+  if (event.data) {
+    try {
+      const data = event.data.json();
+      notificationData = {
+        ...notificationData,
+        title: data.title || 'Lumio',
+        body: data.body || 'Nova mensagem!',
+        icon: data.icon || '/Group 140.png',
+        tag: data.tag || 'lumio-notification',
+        data: data.data || {}
+      };
+    } catch (e) {
+      notificationData.body = event.data.text();
+    }
+  }
+
   const options = {
-    body: event.data ? event.data.text() : 'Nova notificação da Lumio!',
-    icon: '/Group 13.png',
-    badge: '/Group 13.png',
+    body: notificationData.body,
+    icon: notificationData.icon,
+    badge: notificationData.badge,
+    tag: notificationData.tag,
+    requireInteraction: notificationData.requireInteraction,
+    silent: notificationData.silent,
     vibrate: [200, 100, 200],
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: 1
+      primaryKey: 1,
+      ...notificationData.data
     },
     actions: [
       {
-        action: 'explore',
-        title: 'Ver',
-        icon: '/Group 13.png'
+        action: 'view',
+        title: 'Ver Mensagem',
+        icon: '/Group 140.png'
       },
       {
         action: 'close',
         title: 'Fechar',
-        icon: '/Group 13.png'
+        icon: '/Group 140.png'
       }
     ]
   };
 
   event.waitUntil(
-    self.registration.showNotification('Lumio', options)
+    self.registration.showNotification(notificationData.title, options)
   );
 });
 
 // Notification click
 self.addEventListener('notificationclick', (event) => {
-  console.log('Service Worker: Notification click');
+  console.log('Service Worker: Notification click', event.action);
   
   event.notification.close();
 
-  if (event.action === 'explore') {
+  if (event.action === 'view') {
+    // Abrir mensagens
     event.waitUntil(
-      clients.openWindow('/explore')
+      clients.openWindow('/messages')
     );
   } else if (event.action === 'close') {
-    // Just close the notification
+    // Apenas fechar a notificação
   } else {
-    // Default action - open the app
-    event.waitUntil(
-      clients.openWindow('/')
-    );
+    // Ação padrão - abrir a conversa específica se disponível
+    const data = event.notification.data;
+    if (data && data.conversationId) {
+      event.waitUntil(
+        clients.openWindow(`/messages?conversation=${data.conversationId}`)
+      );
+    } else {
+      event.waitUntil(
+        clients.openWindow('/messages')
+      );
+    }
   }
 });
 

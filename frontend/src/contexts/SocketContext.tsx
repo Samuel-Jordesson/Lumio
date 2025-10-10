@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { useAuth } from './AuthContext'
+import { useNotifications } from '../hooks/useNotifications'
 
 interface SocketContextType {
   socket: Socket | null
@@ -21,6 +22,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [socket, setSocket] = useState<Socket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const { user, isAuthenticated } = useAuth()
+  const { sendNotification } = useNotifications()
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -43,13 +45,35 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         console.log('Disconnected from socket server')
       })
 
+      // Escutar novas mensagens e mostrar notificação
+      newSocket.on('new-message', (message) => {
+        console.log('New message received:', message)
+        
+        // Verificar se a mensagem não é do usuário atual
+        if (message.senderId !== user?.id) {
+          // Enviar notificação
+          sendNotification({
+            title: 'Nova mensagem',
+            body: message.content.length > 50 
+              ? message.content.substring(0, 50) + '...' 
+              : message.content,
+            tag: `message-${message.conversationId || 'unknown'}`,
+            data: {
+              conversationId: message.conversationId,
+              senderId: message.senderId,
+              type: 'message'
+            }
+          })
+        }
+      })
+
       setSocket(newSocket)
 
       return () => {
         newSocket.close()
       }
     }
-  }, [isAuthenticated, user])
+  }, [isAuthenticated, user, sendNotification])
 
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>

@@ -6,6 +6,37 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 const prisma = new PrismaClient();
 
+// Função para enviar notificação push
+async function sendPushNotification(userId, notificationData) {
+  try {
+    // Buscar subscription do usuário
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { 
+        id: true, 
+        name: true,
+        pushSubscription: true 
+      }
+    });
+
+    if (!user || !user.pushSubscription) {
+      console.log(`User ${userId} has no push subscription`);
+      return;
+    }
+
+    // Aqui você implementaria o envio real da notificação push
+    // Por enquanto, vamos apenas logar
+    console.log(`Push notification for user ${userId}:`, notificationData);
+    
+    // TODO: Implementar envio real via web-push ou similar
+    // const webpush = require('web-push');
+    // await webpush.sendNotification(user.pushSubscription, JSON.stringify(notificationData));
+    
+  } catch (error) {
+    console.error('Error sending push notification:', error);
+  }
+}
+
 // @route   GET /api/conversations
 // @desc    Get user conversations
 // @access  Private
@@ -202,6 +233,24 @@ router.post('/:id/messages', auth, [
       }
     } catch (error) {
       console.log('Socket error:', error);
+    }
+
+    // Enviar notificação push para o destinatário
+    try {
+      await sendPushNotification(receiverId, {
+        title: `${req.user.name} enviou uma mensagem`,
+        body: content.length > 50 ? content.substring(0, 50) + '...' : content,
+        icon: '/Group 140.png',
+        tag: `message-${id}`,
+        data: {
+          conversationId: id,
+          senderId: req.user.id,
+          senderName: req.user.name,
+          type: 'message'
+        }
+      });
+    } catch (error) {
+      console.log('Push notification error:', error);
     }
 
     res.json({

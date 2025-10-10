@@ -6,10 +6,12 @@ import SearchBar from './SearchBar'
 import Logo from './Logo'
 import NotificationBell from './NotificationBell'
 import SettingsModal from './SettingsModal'
+import NotificationSettings from './NotificationSettings'
 
 const Header = () => {
   const { user, logout } = useAuth()
   const [showSettings, setShowSettings] = useState(false)
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false)
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-6 py-4 z-40">
@@ -32,8 +34,17 @@ const Header = () => {
           <NotificationBell />
           
           <button 
+            onClick={() => setShowNotificationSettings(true)}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+            title="Configurações de Notificação"
+          >
+            <Bell className="w-5 h-5 text-gray-600" />
+          </button>
+          
+          <button 
             onClick={() => setShowSettings(true)}
             className="p-2 hover:bg-gray-100 rounded-lg"
+            title="Configurações"
           >
             <Settings className="w-5 h-5 text-gray-600" />
           </button>
@@ -62,6 +73,11 @@ const Header = () => {
       <SettingsModal 
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
+      />
+      
+      <NotificationSettings 
+        isOpen={showNotificationSettings}
+        onClose={() => setShowNotificationSettings(false)}
       />
     </header>
   )

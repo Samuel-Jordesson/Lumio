@@ -1,103 +1,118 @@
 const express = require('express');
+const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// @route   GET /api/notifications
-// @desc    Get user notifications
+// @route   POST /api/notifications/subscribe
+// @desc    Subscribe user to push notifications
 // @access  Private
-router.get('/', auth, async (req, res) => {
-  try {
-    const notifications = await prisma.notification.findMany({
-      where: {
-        userId: req.user.id
-      },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            avatar: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: 10
-    });
-
-    res.json(notifications);
-  } catch (error) {
-    console.error('Get notifications error:', error);
-    res.status(500).json({ message: 'Server error' });
+router.post('/subscribe', auth, [
+  body('subscription', 'Subscription is required').not().isEmpty()
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ message: errors.array()[0].msg });
   }
-});
 
-// @route   PUT /api/notifications/:id/read
-// @desc    Mark notification as read
-// @access  Private
-router.put('/:id/read', auth, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { subscription } = req.body;
 
-    const notification = await prisma.notification.update({
-      where: {
-        id,
-        userId: req.user.id
-      },
+    // Atualizar subscription do usuário
+    await prisma.user.update({
+      where: { id: req.user.id },
       data: {
-        isRead: true
+        pushSubscription: JSON.stringify(subscription)
       }
     });
 
-    res.json(notification);
+    console.log(`Push subscription updated for user ${req.user.id}`);
+    res.json({ message: 'Subscription updated successfully' });
   } catch (error) {
-    console.error('Mark notification as read error:', error);
+    console.error('Subscribe error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// @route   PUT /api/notifications/read-all
-// @desc    Mark all notifications as read
+// @route   DELETE /api/notifications/subscribe
+// @desc    Unsubscribe user from push notifications
 // @access  Private
-router.put('/read-all', auth, async (req, res) => {
+router.delete('/subscribe', auth, async (req, res) => {
   try {
-    await prisma.notification.updateMany({
-      where: {
-        userId: req.user.id,
-        isRead: false
-      },
+    // Remover subscription do usuário
+    await prisma.user.update({
+      where: { id: req.user.id },
       data: {
-        isRead: true
+        pushSubscription: null
       }
     });
 
-    res.json({ message: 'All notifications marked as read' });
+    console.log(`Push subscription removed for user ${req.user.id}`);
+    res.json({ message: 'Subscription removed successfully' });
   } catch (error) {
-    console.error('Mark all notifications as read error:', error);
+    console.error('Unsubscribe error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// @route   GET /api/notifications/unread-count
-// @desc    Get unread notifications count
+// @route   GET /api/notifications/subscribe
+// @desc    Get user subscription status
 // @access  Private
-router.get('/unread-count', auth, async (req, res) => {
+router.get('/subscribe', auth, async (req, res) => {
   try {
-    const count = await prisma.notification.count({
-      where: {
-        userId: req.user.id,
-        isRead: false
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { pushSubscription: true }
+    });
+
+    res.json({
+      subscribed: !!user?.pushSubscription,
+      subscription: user?.pushSubscription ? JSON.parse(user.pushSubscription) : null
+    });
+  } catch (error) {
+    console.error('Get subscription error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/notifications/test
+// @desc    Send test notification to user
+// @access  Private
+router.post('/test', auth, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { 
+        id: true, 
+        name: true, 
+        pushSubscription: true 
       }
     });
 
-    res.json({ count });
+    if (!user?.pushSubscription) {
+      return res.status(400).json({ message: 'User not subscribed to notifications' });
+    }
+
+    // Enviar notificação de teste
+    const notificationData = {
+      title: 'Lumio - Teste',
+      body: 'Esta é uma notificação de teste!',
+      icon: '/Group 140.png',
+      tag: 'test-notification',
+      data: {
+        type: 'test',
+        timestamp: Date.now()
+      }
+    };
+
+    // TODO: Implementar envio real da notificação
+    console.log(`Test notification for user ${req.user.id}:`, notificationData);
+
+    res.json({ message: 'Test notification sent' });
   } catch (error) {
-    console.error('Get unread count error:', error);
+    console.error('Test notification error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
