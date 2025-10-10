@@ -12,25 +12,25 @@
   "categories": ["social", "lifestyle", "entertainment"],
   "icons": [
     {
-      "src": "/Group 13.png",
+      "src": "/Group 140.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/Group 13.png",
+      "src": "/Group 140.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/Group 13.png",
+      "src": "/Group 140.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/Group 13.png",
+      "src": "/Group 140.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any"
@@ -58,7 +58,7 @@
       "url": "/?action=create-post",
       "icons": [
         {
-          "src": "/Group 13.png",
+          "src": "/Group 140.png",
           "sizes": "96x96"
         }
       ]
@@ -70,7 +70,7 @@
       "url": "/messages",
       "icons": [
         {
-          "src": "/Group 13.png",
+          "src": "/Group 140.png",
           "sizes": "96x96"
         }
       ]
@@ -82,7 +82,7 @@
       "url": "/explore",
       "icons": [
         {
-          "src": "/Group 13.png",
+          "src": "/Group 140.png",
           "sizes": "96x96"
         }
       ]
