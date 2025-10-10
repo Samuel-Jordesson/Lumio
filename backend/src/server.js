@@ -19,6 +19,7 @@ const io = new Server(server, {
       /^https:\/\/.*\.vercel\.app$/,
       /^https:\/\/.*\.onrender\.com$/,
       /^https:\/\/.*\.railway\.app$/,
+      "https://lumio-brown.vercel.app",
       "https://frontend-lumio-az9k-en13h6lps-samueljordessons-projects.vercel.app",
       "https://backend-lumio-production.up.railway.app",
       "https://lumio-frontend.onrender.com"
@@ -44,6 +45,7 @@ app.use(cors({
     "https://localhost:3000",
     /^https:\/\/.*\.vercel\.app$/,
     /^https:\/\/.*\.onrender\.com$/,
+    "https://lumio-brown.vercel.app",
     "https://frontend-lumio-az9k-en13h6lps-samueljordessons-projects.vercel.app",
     "https://backend-lumio-production.up.railway.app",
     "https://lumio-frontend.onrender.com"

@@ -124,6 +124,13 @@ router.post('/login', [
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    // Check if user registered with Google (empty password)
+    if (!user.password || user.password === '') {
+      return res.status(400).json({ 
+        message: 'This account was created with Google. Please use Google Sign-In to login.' 
+      });
+    }
+
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -157,7 +164,15 @@ router.post('/login', [
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Login error details:', {
+      message: error.message,
+      stack: error.stack,
+      email: email
+    });
+    res.status(500).json({ 
+      message: 'Server error during login', 
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    });
   }
 });
 
